@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware Info Sync Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .box {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #357ae8;
+        }
+        #result {
+            white-space: pre-wrap;
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Hardware Info Sync Test</h1>
+
+    <div class="box">
+        <h2>Configuration</h2>
+        <p>Web App URL:</p>
+        <input type="text" id="webAppUrl" style="width: 100%; padding: 8px; font-size: 14px;"
+               value="https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec">
+    </div>
+
+    <div class="box">
+        <h2>Test</h2>
+        <button onclick="testSync()">Send Test Data to Spreadsheet</button>
+    </div>
+
+    <div class="box">
+        <h2>Result</h2>
+        <div id="result">Click the button to test...</div>
+    </div>
+
+    <script>
+        async function testSync() {
+            const resultDiv = document.getElementById('result');
+            const webAppUrl = document.getElementById('webAppUrl').value;
+
+            resultDiv.textContent = 'Sending request...\n';
+
+            const testData = {
+                data: [
+                    {
+                        "ComputerName": "TEST-BROWSER",
+                        "Users": "Administrator\\nTestUser",
+                        "Manufacturer": "Test Manufacturer",
+                        "Motherboard": "Test Board",
+                        "CPU": "Test CPU",
+                        "Cores": "8",
+                        "Processors": "16",
+                        "GPU": "Test GPU",
+                        "RAM": "64",
+                        "RAM Details": "DIMM 0: 16GB\\nDIMM 1: 16GB",
+                        "Disk": "Test SSD 1TB",
+                        "IP": "192.168.1.100",
+                        "MAC": "AA-BB-CC-DD-EE-FF",
+                        "NetworkAdapter": "Test Adapter",
+                        "OSName": "Windows 11 Pro",
+                        "OSVersion": "10.0.26100",
+                        "LastUpdated": new Date().toISOString()
+                    }
+                ]
+            };
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch(webAppUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',  // Important for cross-origin requests
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const elapsed = Date.now() - startTime;
+
+                // Note: With no-cors, we can't read the response
+                resultDiv.innerHTML = `<span class="success">Request sent successfully!</span>\n`;
+                resultDiv.innerHTML += `Time: ${elapsed}ms\n\n`;
+                resultDiv.innerHTML += `Check your Google Spreadsheet to see if the data was added:\n`;
+                resultDiv.innerHTML += `https://docs.google.com/spreadsheets/d/1J8wYgDj4mOb-mw3r4AcsHccpNnyweQJLlcpZteF7IyA/edit`;
+
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">Error:</span> ${error.message}\n\n`;
+                resultDiv.innerHTML += JSON.stringify(error, null, 2);
+            }
+        }
+    </script>
+</body>
+</html>
